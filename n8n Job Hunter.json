@@ -1,0 +1,920 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -992,
+        144
+      ],
+      "id": "96b13d70-15a0-42f0-b66d-621eff88d2e5",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ac0afeb1-1408-4ff7-be3c-53d057918990",
+              "name": "job_title",
+              "value": "[\"Web Developer\", \"Quality Assurance Software\", \"Software Tester\"]",
+              "type": "array"
+            },
+            {
+              "id": "41e0d23d-9a27-451b-9a77-d8f7a27023f1",
+              "name": "tech_stack",
+              "value": "\"PHP, Html, Python, JavaScript\"",
+              "type": "string"
+            },
+            {
+              "id": "a833c4ee-cc98-449e-9b6b-229d0343edf9",
+              "name": "resume_text",
+              "value": "\"Paste your resume text here\"",
+              "type": "string"
+            },
+            {
+              "id": "8311df1b-bc34-496f-bf79-2f3ef35dfa6e",
+              "name": "work_mode",
+              "value": "[\"Remote\", \"Hybrid\"]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -768,
+        144
+      ],
+      "id": "7e9c4460-90d1-4f3c-b140-b51a01db7e61",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "job_title",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        144
+      ],
+      "id": "3586aac0-0cf9-4b77-adee-7cff0a9e78fb",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "=https://remotive.com/api/remote-jobs?search={{ $json.job_title }}&candidate_required_location=Philippines",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        160
+      ],
+      "id": "47dae8e8-677b-41a0-a6dc-5aacb67f2763",
+      "name": "Remotive"
+    },
+    {
+      "parameters": {
+        "url": "https://arbeitnow.com/api/job-board-api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        432
+      ],
+      "id": "a1f12f70-037d-40b4-8dae-63e35fa41d7a",
+      "name": "arbeitnow"
+    },
+    {
+      "parameters": {
+        "url": "https://jobicy.com/api/v2/remote-jobs?count=50&geo=philippines",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -368,
+        -272
+      ],
+      "id": "8ffd10a3-9c88-43da-8f87-00519f5738fe",
+      "name": "Jobicy"
+    },
+    {
+      "parameters": {
+        "url": "=https://himalayas.app/jobs/api/search?q={{ $json.job_title }}&country=PH",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        -112
+      ],
+      "id": "e7f57f09-ccf5-4ed0-a60b-dde81205aad9",
+      "name": "Himalayas"
+    },
+    {
+      "parameters": {
+        "url": "https://remoteok.com/api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        288
+      ],
+      "id": "69dcb5c2-3b49-437f-a365-4da830898a7e",
+      "name": "Remoteok"
+    },
+    {
+      "parameters": {
+        "url": "https://www.themuse.com/api/public/jobs?page=1&category=Software%20Engineering",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        32
+      ],
+      "id": "d0c8e133-56bc-4b25-9917-5e5fa873f05b",
+      "name": "themuse"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.jobs || [];\nreturn jobs\n  .map(job => ({\n    title: job.title,\n    company: job.companyName,\n    description: job.excerpt || \"\",\n    url: job.applicationLink || job.url,\n    source: \"Himalayas\",\n    location: (job.locationRestrictions && job.locationRestrictions.length > 0) \n      ? job.locationRestrictions.join(', ') \n      : \"Worldwide\",\n    work_mode: \"Remote\",\n    posted_at: job.pubDate || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    return loc.includes(\"philippines\") || loc.includes(\"worldwide\") || loc.includes(\"asia\") || loc.includes(\"anywhere\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -112
+      ],
+      "id": "61e4976b-76ea-4593-8a69-941eca338025",
+      "name": "Himalayas code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.jobs || [];\nreturn jobs\n  .map(job => ({\n    title: job.jobTitle,\n    company: job.companyName,\n    description: job.jobDescription,\n    url: job.url,\n    source: \"Jobicy\",\n    location: job.jobGeo || \"Worldwide\",\n    work_mode: \"Remote\",\n    posted_at: job.pubDate || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    return loc.includes(\"philippines\") || loc.includes(\"worldwide\") || loc.includes(\"asia\") || loc.includes(\"anywhere\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -256
+      ],
+      "id": "1206f66d-ba8a-4125-a6f8-e4135563887d",
+      "name": "Jobicy code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.jobs || [];\nreturn jobs\n  .map(job => ({\n    title: job.title,\n    company: job.company_name,\n    description: job.description,\n    url: job.url,\n    source: \"Remotive\",\n    location: job.candidate_required_location || \"Worldwide\",\n    work_mode: \"Remote\",\n    posted_at: job.publication_date || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    return loc.includes(\"philippines\") || loc.includes(\"worldwide\") || loc.includes(\"asia\") || loc.includes(\"anywhere\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        160
+      ],
+      "id": "1f21dbd4-c2e6-4793-a108-1e6c1f0392fa",
+      "name": "remotive code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get all items from the input, and skip the first one (legal notice)\nconst items = $input.all();\nconst jobs = items.slice(1).map(item => item.json);\n\n// 2. Map and filter the jobs\nreturn jobs\n  .map(job => ({\n    title: job.position || job.title || \"Unknown Title\",\n    company: job.company || \"Unknown Company\",\n    description: job.description || \"\",\n    url: job.url || \"\",\n    source: \"RemoteOK\",\n    location: job.location || \"Worldwide\",\n    work_mode: \"Remote\",\n    posted_at: job.date || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    return loc.includes(\"philippines\") || loc.includes(\"worldwide\") || loc.includes(\"asia\") || loc.includes(\"anywhere\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        288
+      ],
+      "id": "f9b8ed0b-ea43-4981-9efd-2d756bfddd00",
+      "name": "remoteok code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.data || [];\nreturn jobs\n  .map(job => ({\n    title: job.title,\n    company: job.company_name,\n    description: job.description,\n    url: job.url,\n    source: \"Arbeitnow\",\n    location: job.location || \"Not specified\",\n    work_mode: job.remote ? \"Remote\" : \"On-site\",\n    posted_at: job.created_at || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    return loc.includes(\"philippines\") || loc.includes(\"worldwide\") || loc.includes(\"asia\") || loc.includes(\"anywhere\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        432
+      ],
+      "id": "d9c8fc9e-7a9b-42cf-bc6c-f33f4f029e5b",
+      "name": "arbeitnow code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the results array\nconst jobs = $input.first().json.results || [];\n\nreturn jobs\n  .map(job => ({\n    title: job.name || \"Unknown Title\",\n    company: job.company ? job.company.name : \"Unknown Company\",\n    // TRUNCATE the massive HTML description to save AI tokens later\n    description: job.contents ? job.contents.substring(0, 3000) : \"\",\n    url: job.refs ? job.refs.landing_page : \"\",\n    source: \"TheMuse\",\n    location: (job.locations && job.locations.length > 0) \n      ? job.locations.map(l => l.name).join(', ') \n      : \"Not specified\",\n    work_mode: (job.locations && job.locations.some(l => l.name.toLowerCase().includes(\"remote\"))) \n      ? \"Remote\" \n      : \"On-site\",\n    posted_at: job.publication_date || \"\"\n  }))\n  .filter(job => {\n    const loc = job.location.toLowerCase();\n    // Broaden the filter so we don't drop everything\n    return loc.includes(\"philippines\") || \n           loc.includes(\"worldwide\") || \n           loc.includes(\"asia\") || \n           loc.includes(\"remote\") || \n           loc.includes(\"anywhere\") ||\n           loc.includes(\"manila\");\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        32
+      ],
+      "id": "f5a12767-7f33-4445-b85d-b1661b1afdd6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "numberInputs": 8
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        176,
+        32
+      ],
+      "id": "d97aeb8b-20ef-4779-814b-0e817519f841",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        352,
+        96
+      ],
+      "id": "6c5a0f67-37fe-4ed9-8252-31593910bbf6",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "batchSize": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        560,
+        96
+      ],
+      "id": "03158e61-7978-4d7b-934d-20602b0d5186",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the AI response\nconst response = $input.first().json;\n\nif (response.error) {\n  throw new Error(\"API Error: \" + JSON.stringify(response.error));\n}\n\n// 2. Extract content (handle both Gemini and Ollama formats)\nlet content;\nif (response.choices && response.choices[0]) {\n  content = response.choices[0].message.content;\n} else if (response.message && response.message.content) {\n  content = response.message.content;\n} else {\n  throw new Error(\"Unknown response format.\");\n}\n\n// 3. Clean up markdown\ncontent = content.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// 4. Try to extract valid JSON (fallback to regex if parse fails)\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch (e) {\n  const matchRegex = /\\{\\s*\"index\"\\s*:\\s*(\\d+)\\s*,\\s*\"score\"\\s*:\\s*(\\d+)\\s*,\\s*\"reason\"\\s*:\\s*\"([^\"]*)\"\\s*\\}/g;\n  const matches = [];\n  let m;\n  while ((m = matchRegex.exec(content)) !== null) {\n    matches.push({\n      index: parseInt(m[1]),\n      score: parseInt(m[2]),\n      reason: m[3]\n    });\n  }\n  if (matches.length === 0) {\n    throw new Error(\"Could not parse JSON. Raw content: \" + content.substring(0, 500));\n  }\n  parsed = { matches: matches };\n}\n\nconst scores = parsed.matches || [];\n\n// 5. Get the original batch of jobs\nconst jobs = $(' a \"Code\" Node before the HTTP Request').item.json.original_jobs;\n\n// 6. Map scores back to jobs\nreturn jobs.map((job, i) => ({\n  ...job,\n  match_score: scores[i]?.score || 0,\n  ai_reason: scores[i]?.reason || \"No reason provided.\"\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        96
+      ],
+      "id": "23c11db2-38b6-4f00-87ce-5eaa0e995cc8",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Grab the batch of items from the Loop node\nconst jobs = $input.all().map(item => item.json);\n\n// 2. Grab the resume text\nconst resumeText = $('Edit Fields').first().json.resume_text;\n\n// 3. Build the jobs string\nconst jobsString = jobs.map((j, i) => `\n---\nIndex: ${i}\nTitle: ${j.title}\nCompany: ${j.company}\nLocation: ${j.location}\nDescription: ${j.description ? j.description.substring(0, 1000) : ''}\n`).join('\\n');\n\n// 4. Build the prompt\nconst prompt = `CANDIDATE LOCATION: Philippines\\nRESUME:\\n${resumeText}\\n\\nJOBS:\\n${jobsString}\\n\\nReturn ONLY a JSON object with a \"matches\" array, one entry per job in the same order as listed above: { \"matches\": [{ \"index\": 0, \"score\": 85, \"reason\": \"...\" }] }`;\n\n// 5. Build the Gemini request body\nconst body = {\n  model: \"gemini-1.5-flash\",\n  messages: [{ role: \"user\", content: prompt }],\n  response_format: { type: \"json_object\" }\n};\n\n// 6. Build the Ollama (Local AI) request body - NATIVE API\nconst ollama_body = {\n  model: \"llama3.1:8b\",  // 🚨 Changed from qwen3:4b\n  messages: [\n    { role: \"system\", content: \"You output ONLY valid JSON. No explanations, no markdown.\" },\n    { role: \"user\", content: prompt }\n  ],\n  stream: false,\n  format: \"json\",        // Forces valid JSON output\n  options: {\n    temperature: 0.1,\n    num_ctx: 8192\n  }\n};\n\n// 7. Return everything needed\nreturn [{ json: { \n  body: body, \n  ollama_body: JSON.stringify(ollama_body), // Serialized safely!\n  original_jobs: jobs \n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        112
+      ],
+      "id": "dbe7fea5-75aa-4433-ab18-9a95804d6ee7",
+      "name": " a \"Code\" Node before the HTTP Request"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "matches",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -160
+      ],
+      "id": "a5016eed-d711-4e38-832f-bcf1d720172f",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the aggregated matches\nconst matches = $input.first().json.matches || [];\n\nif (matches.length === 0) {\n  return [{ json: { html: \"<p>No strong matches found today. Check back tomorrow!</p>\" } }];\n}\n\nlet html = `<h2>🎯 Your Job Matches for ${new Date().toDateString()}</h2>`;\nhtml += `<p>Found <strong>${matches.length}</strong> strong matches today.</p>`;\n\n// 2. Sort by match_score descending\nmatches.sort((a, b) => b.match_score - a.match_score).forEach((job, i) => {\n  html += `\n    <div style=\"border:1px solid #ddd; padding:15px; margin:10px 0; border-radius:8px; font-family: Arial, sans-serif;\">\n      <h3 style=\"margin-top:0;\">${i+1}. ${job.title} — <span style=\"color: #4CAF50;\">${job.match_score}/100</span></h3>\n      <p><strong>Company:</strong> ${job.company}</p>\n      <p><strong>Location:</strong> ${job.location} (${job.work_mode})</p>\n      <p><strong>Why it's a match:</strong> ${job.ai_reason}</p>\n      <p><a href=\"${job.url}\" style=\"display:inline-block; padding:10px 15px; background-color:#007BFF; color:#fff; text-decoration:none; border-radius:5px;\">Apply Now →</a></p>\n    </div>`;\n});\n\nhtml += `<p style=\"color:#888; font-size:12px;\">Sent by your n8n Job Bot</p>`;\nreturn [{ json: { html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -160
+      ],
+      "id": "760a1869-069d-4b71-97dc-25d4421bcfdc",
+      "name": "html email format"
+    },
+    {
+      "parameters": {
+        "subject": "=🎯 Job Digest for {{ $now.format('yyyy-MM-dd') }}",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1472,
+        -160
+      ],
+      "id": "bf037ec7-8008-4437-8973-26a73ad5f578",
+      "name": "Send an Email",
+      "webhookId": "3f903628-9861-4a54-b0d4-5797193a9010",
+      "credentials": {
+        "smtp": {
+          "id": "Dm3jdfdPcVyBnW1G",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 6
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        96
+      ],
+      "id": "96d4d606-c9ca-4b5b-8c58-d73255a0e733",
+      "name": "Wait",
+      "webhookId": "c67a23e9-187d-44c3-9bba-49d990ebe5a8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": []
+        },
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1040,
+        112
+      ],
+      "id": "6636e9f7-2d68-4679-b631-f535731efe30",
+      "name": "HTTP Request Gemini",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Gjfj791vJNef077R",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $(' a \"Code\" Node before the HTTP Request').first().json.ollama_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        352
+      ],
+      "id": "49ab6340-5f28-4766-9676-6e047c1db762",
+      "name": "HTTP Request Local AI llama3"
+    },
+    {
+      "parameters": {
+        "command": "=python \"C:\\Users\\USER\\Documents\\py\\JIM-jobs-scraper\\scraper.py\" \"{{ $json.job_title }}\" \"Manila\" indeed 2>nul"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        624
+      ],
+      "id": "c63766e4-8467-48b0-a836-3b76c81daf58",
+      "name": "Indeed"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The Aggregate node wraps everything into a single item with a \"matches\" array\nconst matches = $input.first().json.matches || [];\n\n// Filter by score, then wrap back into a \"matches\" object\nconst filtered = matches.filter(job => job.match_score >= 80);\n\nreturn [{ json: { matches: filtered } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        -160
+      ],
+      "id": "83e04ce3-a4e5-4c11-a856-e9d4f835fd29",
+      "name": "Filter code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const stdout = $input.first().json.stdout || \"\";\nconst raw = typeof stdout === 'string' ? stdout : JSON.stringify(stdout);\n\nlet jobs = [];\ntry {\n  jobs = JSON.parse(raw.trim());\n} catch (e) {\n  throw new Error(\"Failed to parse: \" + e.message);\n}\n\nreturn jobs.map(job => ({ json: job }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        624
+      ],
+      "id": "95de5061-37a6-460f-b022-f3651a6fb61e",
+      "name": "Indeed code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// JobStreet v5 API returns results in data[0].results\nconst items = $input.first().json.data?.[0]?.results || [];\n\nreturn items.map(item => {\n  const job = item.job || item;\n  const advertiser = item.advertiser || job.advertiser || {};\n  \n  // Build the full job URL from the job ID\n  const jobId = job.id || item.id || \"\";\n  const url = jobId ? `https://ph.jobstreet.com/job/${jobId}` : \"\";\n  \n  // Extract location from the nested structure\n  const location = job.location || advertiser.location || \"Philippines\";\n  \n  // Detect work mode from work arrangement\n  const arrangement = (job.workArrangement || []).map(w => w.label || w).join(\", \").toLowerCase();\n  let workMode = \"On-site\";\n  if (arrangement.includes(\"remote\")) workMode = \"Remote\";\n  else if (arrangement.includes(\"hybrid\")) workMode = \"Hybrid\";\n  \n  return {\n    title: job.title || \"Unknown\",\n    company: advertiser.name || job.companyName || \"Unknown\",\n    description: job.teaser || job.description || \"\",\n    url: url,\n    source: \"JobStreet\",\n    location: location,\n    work_mode: workMode,\n    posted_at: job.listedAt || job.listingDate || \"\"\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        768
+      ],
+      "id": "99d24ac0-fbdc-4dce-9269-a4f9ad9ae461",
+      "name": "Jobstreet code"
+    },
+    {
+      "parameters": {
+        "url": "https://ph.jobstreet.com/api/jobsearch/v5/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "siteKey",
+              "value": "PH-Main"
+            },
+            {
+              "name": "keywords",
+              "value": "={{ $json.job_title }}"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "pageSize",
+              "value": "30"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        768
+      ],
+      "id": "5f4c5d08-0272-49df-aa09-a97c8a6809e5",
+      "name": "Jobstreet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remotive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "arbeitnow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jobicy",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Himalayas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Remoteok",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "themuse",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jobstreet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Indeed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remotive": {
+      "main": [
+        [
+          {
+            "node": "remotive code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jobicy": {
+      "main": [
+        [
+          {
+            "node": "Jobicy code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Himalayas": {
+      "main": [
+        [
+          {
+            "node": "Himalayas code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remoteok": {
+      "main": [
+        [
+          {
+            "node": "remoteok code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "arbeitnow": {
+      "main": [
+        [
+          {
+            "node": "arbeitnow code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "themuse": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " a \"Code\" Node before the HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " a \"Code\" Node before the HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Filter code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html email format": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Gemini": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request Local AI llama3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Local AI llama3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter code": {
+      "main": [
+        [
+          {
+            "node": "html email format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indeed code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Jobstreet code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Jobstreet": {
+      "main": [
+        [
+          {
+            "node": "Jobstreet code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indeed": {
+      "main": [
+        [
+          {
+            "node": "Indeed code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jobicy code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Himalayas code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "remotive code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "remoteok code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "arbeitnow code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "538e2539-5591-4cd8-829c-043331db818f",
+  "meta": {
+    "instanceId": "965f6321084e6218c7750b9d6cfbca8b996aac2211d72a61d752f90d9cef37e8"
+  },
+  "nodeGroups": [],
+  "id": "pL0guRPNNOVZtyM2",
+  "tags": []
+}
