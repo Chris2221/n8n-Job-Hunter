@@ -345,6 +345,8 @@ MIT — free to use, modify, and distribute.
 
 **Happy job hunting!** 🎯
 
+## 📸 Preview
 <img width="1867" height="835" alt="Screenshot 2026-09-11 165317" src="https://github.com/user-attachments/assets/70d10ad0-5647-403d-9c13-1415dfe6e9cc" />
+<img width="1538" height="868" alt="Screenshot 2026-09-16 103551" src="https://github.com/user-attachments/assets/2f3fd7d7-2abe-49cf-9ba9-8498ebbddc3c" />
 
 ---
